@@ -43,6 +43,7 @@ def iterate(field, field0, timesteps, image_interval):
             write_field(field, m)
 
 
+@profile
 def main():
     timesteps = 200  # Number of time-steps to evolve system.
     image_interval = 4000 # write frequency for png files
