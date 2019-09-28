@@ -6,7 +6,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-from _evolve import lib, ffi
+from evolve_module import evolve
 
 # Set the colormap
 plt.rcParams['image.cmap'] = 'BrBG'
@@ -37,12 +37,13 @@ def write_field(field, step):
     plt.savefig('heat_{0:03d}.png'.format(step))
 
 def iterate(field, field0, timesteps, image_interval):
-    fieldptr = ffi.cast("double *", ffi.from_buffer(field))
-    field0ptr = ffi.cast("double *", ffi.from_buffer(field0))
+    # fieldptr = ffi.cast("double *", ffi.from_buffer(field))
+    # field0ptr = ffi.cast("double *", ffi.from_buffer(field0))
 
     nx, ny = field.shape
+    print(nx, ny)
     for m in range(1, timesteps+1):
-        lib.evolve(fieldptr, field0ptr, nx, ny, a, dt, dx2, dy2)
+        evolve(field, field, a, dt, dx2, dy2, nx, ny)
         if m % image_interval == 0:
             write_field(field, m)
 
@@ -55,6 +56,9 @@ def main():
     # Write initial field
     write_field(field, 0)
     # iterate
+    # Arrays need to be Fortran contiguous for Fortran module
+    field = np.asfortranarray(field)
+    field0 = np.asfortranarray(field0)
     t0 = time.time()
     iterate(field, field0, timesteps, image_interval)
     t1 = time.time()
